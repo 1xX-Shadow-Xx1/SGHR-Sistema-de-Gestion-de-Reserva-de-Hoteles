@@ -1,0 +1,36 @@
+﻿@using SGHR.Web.Models.Usuarios.Usuario
+@model UsuarioModel
+
+<div id="deleteContainer">
+    <h4>¿Estás seguro de que deseas eliminar este usuario?</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-4">ID</dt>
+        <dd class="col-sm-8">@Model.Id</dd>
+
+        <dt class="col-sm-4">Nombre</dt>
+        <dd class="col-sm-8">@Model.Nombre</dd>
+
+        <dt class="col-sm-4">Correo</dt>
+        <dd class="col-sm-8">@Model.Correo</dd>
+
+        <dt class="col-sm-4">Rol</dt>
+        <dd class="col-sm-8">@Model.Rol</dd>
+    </dl>
+
+    <form id="formDeleteUser" asp-action="_DeleteConfirmed" method="post">
+        @Html.AntiForgeryToken()
+         <input type="hidden" asp-for="Id" />
+
+            <button type="submit" class="btn btn-danger me-2">Eliminar</button>
+        <button type="button" class="btn btn-secondary btn-btnCancelDelete btnCancelDelete">Cancelar</button>
+    </form>
+</div>
+
+
+
+
+
+
+
+

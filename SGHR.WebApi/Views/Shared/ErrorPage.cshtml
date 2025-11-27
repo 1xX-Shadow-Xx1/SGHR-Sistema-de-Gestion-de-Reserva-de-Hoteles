@@ -1,0 +1,148 @@
+﻿@using SGHR.Web.Models.Error
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<style>
+    /* Fondo verde claro minimalista (igual que antes) */
+    body {
+        background: linear-gradient(135deg, #e8f5e9 0%, #f1fff2 100%);
+        background-attachment: fixed;
+    }
+
+    .leaf-bg {
+        background-image: url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 24 24" fill="rgba(0,0,0,0.03)"> <path d="M12 2C8 2 3 6 3 11c0 6 6 11 9 11s9-5 9-11c0-5-5-9-9-9zm0 2c3.9 0 7 3.1 7 7 0 4.7-5 9-7 9s-7-4.3-7-9c0-3.9 3.1-7 7-7z"/> </svg>');
+        background-repeat: repeat;
+        opacity: 0.35;
+    }
+
+    /* Tarjeta sin transparencia para que el texto NO se mezcle con el fondo */
+    .error-card {
+        max-width: 900px;
+        border-radius: 18px;
+        background: #ffffff; /* ← SIN transparencia */
+        padding: 3rem;
+        box-shadow: 0px 8px 25px rgba(0, 0, 0);
+    }
+
+    /* Fila del título y subtítulo */
+    .title-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    /* Títulos ahora negros */
+    .error-title {
+        font-size: 4rem;
+        font-weight: 800;
+        color: #000 !important; /* negro */
+        text-shadow: none;
+    }
+
+    .error-subtitle {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #000 !important; /* negro */
+        text-shadow: none;
+    }
+
+    /* Texto general del mensaje en negro */
+    .error-text {
+        color: #000 !important;
+        text-align: center;
+        margin-top: 1.2rem;
+    }
+</style>
+
+
+<div class="container-fluid leaf-bg py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 d-flex justify-content-center">
+
+            <div class="error-card">
+                <div class="card-body text-center p-5">
+
+                    <div class="title-row">
+                        <h1 class="error-title">@Model.StatusCode</h1>
+                        <h4 class="error-subtitle">@Model.ErrorMessage</h4>
+                    </div>
+
+                    @switch (Model.StatusCode)
+                    {
+                        case 400:
+                            <p class="error-text">
+                                La solicitud enviada contiene errores o parámetros inválidos.
+                                Por favor revisa los datos ingresados e inténtalo nuevamente.
+                            </p>
+                            break;
+
+                        case 401:
+                            <p class="error-text">
+                                No estás autenticado. Es necesario iniciar sesión para acceder a este recurso.
+                                Si tu sesión expiró, vuelve a autenticarte.
+                            </p>
+                            break;
+
+                        case 403:
+                            <p class="error-text">
+                                No tienes permisos suficientes para realizar esta acción.
+                                Contacta al administrador si consideras que deberías tener acceso.
+                            </p>
+                            break;
+
+                        case 404:
+                            <p class="error-text">
+                                El recurso que solicitas no se encuentra disponible o no existe.
+                                Verifica la URL o intenta nuevamente más tarde.
+                            </p>
+                            break;
+
+                        case 500:
+                            <p class="error-text">
+                                El servidor encontró un error inesperado al procesar la solicitud.
+                                Intenta nuevamente más tarde o contacta al soporte técnico.
+                            </p>
+                            break;
+
+                        case 501:
+                            <p class="error-text">
+                                Este método o funcionalidad aún no está implementado en el servidor.
+                                Por favor intenta más tarde o consulta al equipo de desarrollo.
+                            </p>
+                            break;
+
+                        case 503:
+                            <p class="error-text">
+                                El servicio no se encuentra disponible en este momento.
+                                Puede deberse a mantenimiento o una alta carga de peticiones.
+                                Intenta de nuevo en unos minutos.
+                            </p>
+                            break;
+
+                        case 504:
+                            <p class="error-text">
+                                El servidor no pudo completar la solicitud a tiempo.
+                                Esto ocurre cuando un servicio externo tarda demasiado en responder.
+                                Intenta nuevamente más tarde.
+                            </p>
+                            break;
+
+                        default:
+                            <p class="error-text">
+                                Ha ocurrido un error inesperado al procesar la solicitud.
+                                Intenta nuevamente o comunícate con el soporte técnico.
+                            </p>
+                            break;
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

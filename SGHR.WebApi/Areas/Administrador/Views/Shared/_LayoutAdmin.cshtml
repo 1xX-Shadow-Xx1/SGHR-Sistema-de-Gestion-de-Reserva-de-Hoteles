@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SGHR -</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/SGHR.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/LoyoutAdministrador.css" asp-append-version="true" />
+    
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar d-flex flex-column">
+        <a class="navbar-brand px-3 mb-3" asp-area="Administrador" asp-controller="HomeAPI" asp-action="Index">SGHR.Web</a>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="HomeAPI" asp-action="Index">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="ReservaAPI" asp-action="Index">Reserva</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="PagoAPI" asp-action="Index">Pago</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="UsuarioAPI" asp-action="Index">Usuario</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="ClienteAPI" asp-action="Index">Cliente</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="CategoriaAPI" asp-action="Index">Categoria</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="PisoAPI" asp-action="Index">Piso</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="AmenityAPI" asp-action="Index">Amenity</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="HabitacionAPI" asp-action="Index">Habitacion</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="TarifaAPI" asp-action="Index">Tarifa</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="MantenimientoAPI" asp-action="Index">Mantenimiento</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="ReporteAPI" asp-action="Index">Reporte</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Administrador" asp-controller="ServicioAdicionalAPI" asp-action="Index">Servicio Adicional</a>
+            </li>
+            <li class="nav-item">
+                <form id="logoutForm" method="post" asp-controller="AuthenticationAPI" asp-action="Logout" asp-area="">
+                    <button type="submit" class="nav-link" style="position: absolute; bottom: 20px; background:none; border:none; cursor:pointer;">
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="content">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+   
+    <!-- 🟦 Toast centrado arriba -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 2000;">
+        <div class="toast-container text-center">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="toast show align-items-center border-0 shadow-lg"
+                     role="alert"
+                     aria-live="assertive"
+                     aria-atomic="true"
+                     style="min-width: 400px; background-color: #28a745; color: white; font-size: 1.1rem;">
+                    <div class="d-flex justify-content-between align-items-center px-4 py-3">
+                        <div class="toast-body">
+                             @TempData["Success"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="toast show align-items-center border-0 shadow-lg"
+                     role="alert"
+                     aria-live="assertive"
+                     aria-atomic="true"
+                     style="min-width: 400px; background-color: #dc3545; color: white; font-size: 1.1rem;">
+                    <div class="d-flex justify-content-between align-items-center px-4 py-3">
+                        <div class="toast-body">
+                             @TempData["Error"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            toastElList.forEach(toastEl => new bootstrap.Toast(toastEl, { delay: 3000 }).show());
+        });
+    </script>
+
+    
+
+    <script>
+        // ID del usuario en sesión
+        const userId = @Context.Session.GetInt32("UserId") ?? 0;
+        const TIEMPO_PING = 10000; // 10 segundos
+
+        if (userId) {
+
+            // 🟦 1. --- Mantener sesión activa ---
+            async function pingSession() {
+            try {
+                const response = await fetch('/AuthenticationAPI/CheckSession', {
+                    method: 'GET'
+                });
+
+                if (!response.ok) {
+                    console.warn("CheckSession respondió con:", response.status);
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (!result.active) {
+                    alert('Su sesión ha expirado.');
+                    window.location.href = '/AuthenticationAPI/AutoLogout';
+                }
+
+            } catch (err) {
+                console.error('Error al verificar sesión:', err);
+            }
+        }
+
+            setInterval(pingSession, TIEMPO_PING);
+
+
+            // 🟦 2. --- Actualizar actividad del usuario ---
+            let ultimaActualizacion = 0;
+            const INTERVALO_UPDATE = 180000; // 3 minutos
+            const sessionId = @Context.Session.GetInt32("SesionId");
+
+            function updateActivity() {
+                if (!sessionId) return;
+
+                const ahora = Date.now();
+                if (ahora - ultimaActualizacion < INTERVALO_UPDATE) return;
+
+                ultimaActualizacion = ahora;
+
+                fetch('/AuthenticationAPI/UpdateActivity', {
+                    method: 'GET'
+                }).catch(err => console.warn('Error al actualizar actividad', err));
+            }
+
+            ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => {
+                document.addEventListener(evt, updateActivity);
+            });
+
+
+            // 🟦 3. --- Función genérica para refrescar listas ---
+            function autoRefreshList(controller, action, containerId, intervalMs, extraParams = {}) {
+
+                function cargar() {
+                    $.ajax({
+                        url: `/${controller}/${action}`,
+                        type: "GET",
+                        data: extraParams,
+                        success: function (data) {
+                            $(`#${containerId}`).html(data);
+                        },
+                        error: function () {
+                            console.warn(`⚠ No se pudo cargar ${controller}/${action}`);
+                        }
+                    });
+                }
+
+                // Ejecutar una vez al inicio
+                cargar();
+
+                // Ejecutar cada X tiempo
+                setInterval(cargar, intervalMs);
+            }
+
+            // 🟦 4. --- EJEMPLO para usarlo ---
+            // autoRefreshList("ReservaAPI", "_List", "contenedorReservas", 5000);
+            // autoRefreshList("ClienteAPI", "_List", "clienteListContainer", 10000);
+        }
+    </script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+
+</body>
+</html>

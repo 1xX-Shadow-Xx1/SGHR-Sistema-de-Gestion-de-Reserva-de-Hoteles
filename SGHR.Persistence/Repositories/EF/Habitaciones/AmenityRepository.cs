@@ -1,0 +1,103 @@
+﻿using Microsoft.Extensions.Logging;
+using SchoolPoliApp.Persistence.Base;
+using SGHR.Domain.Base;
+using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
+using SGHR.Persistence.Context;
+using SGHR.Persistence.Interfaces.Habitaciones;
+
+namespace SGHR.Persistence.Repositories.EF.Habitaciones
+{
+    public sealed class AmenityRepository : BaseRepository<Amenity>, IAmenityRepository
+    {
+        private readonly SGHRContext _context;
+        private readonly ILogger<AmenityRepository> _logger;
+        private readonly AmenitiesValidator _menitiesValidator;
+
+        public AmenityRepository(SGHRContext context,
+                                    AmenitiesValidator menitiesValidator,
+                                   ILogger<AmenityRepository> logger) : base(context)
+        {
+            _context = context;
+            _logger = logger;
+            _menitiesValidator = menitiesValidator;
+
+        }
+        public override async Task<OperationResult<Amenity>> SaveAsync(Amenity entity)
+        {
+            if (!_menitiesValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar Amenity: {fail}", errorMessage);
+                return OperationResult<Amenity>.Fail(errorMessage);
+            }
+
+            _logger.LogInformation("Guardando Amenity.");
+            var result = await base.SaveAsync(entity);
+            if (result.Success)
+                _logger.LogInformation("Amenity creado correctamente con Id {Id}", entity.Id);
+            return result;
+        }
+        public override async Task<OperationResult<Amenity>> UpdateAsync(Amenity entity)
+        {
+            if (!_menitiesValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar Amenity: {fail}", errorMessage);
+                return OperationResult<Amenity>.Fail(errorMessage);
+            }
+
+            _logger.LogInformation("Actualizando Amenity.");
+            var result = await base.UpdateAsync(entity);
+            if (result.Success)
+                _logger.LogInformation("Amenity actualizado correctamente con Id {Id}", entity.Id);
+            return result;
+        }
+        public override async Task<OperationResult<Amenity>> DeleteAsync(Amenity entity)
+        {
+            _logger.LogInformation("Eliminando Amenity.");
+            var result = await base.DeleteAsync(entity);
+            if (result.Success)
+                _logger.LogInformation("Amenity eliminado correctamente con Id {Id}", entity.Id);
+            return result;
+        }
+        public override async Task<OperationResult<Amenity>> GetByIdAsync(int id, bool includeDeleted = false)
+        {
+            _logger.LogInformation("Buscando Amenity con Id {id}.", id);
+            var result = await base.GetByIdAsync(id, includeDeleted);
+            if (result.Success)
+                _logger.LogInformation("Amenity con Id {Id} obtenido correctamente", id);
+            return result;
+        }
+        public override async Task<OperationResult<List<Amenity>>> GetAllAsync(bool includeDeleted = false)
+        {
+            _logger.LogInformation("Obteniendo todos los Amenities.");
+            var result = await base.GetAllAsync(includeDeleted);
+            if (result.Success)
+                _logger.LogInformation("{Count} amenities obtenidos correctamente", result.Data.Count);
+            return result;
+        }
+        public async Task<OperationResult<Amenity>> GetByNombreAsync(string nombre)
+        {
+            _logger.LogInformation("Obteniendo amenites con el nombre {name}", nombre);
+            try
+            {
+                var result = _context.Amenity.Where(a => a.Nombre == nombre);
+
+                if (result.Count() == 0 || result == null)
+                {
+                    _logger.LogWarning("Amenity con nombre {Nombre} no encontrado", nombre);
+                    return OperationResult<Amenity>.Fail("Amenity no encontrado");
+                }
+
+                var amenity = result.First();
+                _logger.LogInformation("Amenity con nombre {Nombre} obtenido correctamente", nombre);
+                return OperationResult<Amenity>.Ok(amenity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo amenity por nombre {Nombre}", nombre);
+                return OperationResult<Amenity>.Fail("Ocurrió un error al obtener el amenity");
+            }
+        }
+
+    }
+}
